@@ -1,3 +1,5 @@
+LARAVEL 10
+
 DEVELOPMENT SETUP :
 
 1. cp .env.example .env
