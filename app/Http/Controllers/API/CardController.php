@@ -20,6 +20,7 @@ class CardController extends BaseController
             'card_number' => 'required|digits:16|unique:card,card_number',
             'cvv' => 'required|digits:3',
             'expiry_date' => 'required|min:7|max:7',
+            'type' => 'required|string',
             'pin' => 'required|digits:6'
         ]);
 
@@ -35,6 +36,8 @@ class CardController extends BaseController
         $card->user_id = auth()->user()->id;
         $card->saldo = 0;
         $card->pin = $request->pin;
+        $card->type = $request->type;
+        $card->status = 'active';
         $card->save();
 
         return $this->sendResponse($card, 'Card added successfully.', 201);
@@ -56,6 +59,10 @@ class CardController extends BaseController
             return $this->sendError('Card not found.', [], 404);
         }
 
+        if ($card->user_id != auth()->user()->id) {
+            return $this->sendError('Unauthorized action.', [], 401);
+        }
+
         return $this->sendResponse($card, 'Card detail retrieved successfully.');
     }
 
@@ -65,6 +72,10 @@ class CardController extends BaseController
 
         if (!$card) {
             return $this->sendError('Card not found.', [], 404);
+        }
+
+        if ($card->user_id != auth()->user()->id) {
+            return $this->sendError('Unauthorized action.', [], 401);
         }
 
         $validator = Validator::make($request->all(), [
@@ -89,6 +100,10 @@ class CardController extends BaseController
             return $this->sendError('Card not found.', [], 404);
         }
 
+        if ($card->user_id != auth()->user()->id) {
+            return $this->sendError('Unauthorized action.', [], 401);
+        }
+
         $trans = Transaction::where('from_card_id', $card->id)->orWhere('to_card_id', $card->id)->first();
 
         if ($trans) {
@@ -98,5 +113,23 @@ class CardController extends BaseController
         $card->delete();
 
         return $this->sendResponse([], 'Card deleted successfully.');
+    }
+
+    public function blockCard($id)
+    {
+        $card = Card::find($id);
+
+        if (!$card) {
+            return $this->sendError('Card not found.', [], 404);
+        }
+
+        if ($card->user_id != auth()->user()->id) {
+            return $this->sendError('Unauthorized action.', [], 401);
+        }
+
+        $card->status = 'disabled';
+        $card->save();
+
+        return $this->sendResponse($card, 'Card blocked successfully.');
     }
 }

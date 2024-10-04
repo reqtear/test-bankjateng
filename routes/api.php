@@ -34,6 +34,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/getCardDetail/{id}', [CardController::class, 'getCardDetail'])->name('getCardDetail');
     Route::post('/setPin/{id}', [CardController::class, 'setPin'])->name('setPin');
     Route::delete('/deleteCard', [CardController::class, 'deleteCard'])->name('deleteCard');
+    Route::get('/blockCard/{id}', [CardController::class, 'blockCard'])->name('blockCard');
 
 
     Route::post('/postingTransaction', [TransactionController::class, 'postingTransaction'])->name('postingTransaction');

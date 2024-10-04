@@ -33,15 +33,23 @@ class TransactionController extends BaseController
             return $this->sendError('Source card not found.', [], 404);
         }
 
+        if ($from_card->status = 'disabled') {
+            return $this->sendError('Source card is blocked.', [], 403);
+        }
+
         if ($request->to_card_id) {
             $to_card = Card::find($request->to_card_id);
 
             if (!$to_card) {
                 return $this->sendError('Target card not found.', [], 404);
             }
+
+            if ($to_card->status = 'disabled') {
+                return $this->sendError('Target card is blocked.', [], 403);
+            }
         }
 
-        if ($request->type == 'transfer' && $from_card->user_id != auth()->user()->id) {
+        if ($from_card->user_id != auth()->user()->id) {
             return $this->sendError('Unauthorized transaction.', [], 401);
         }
 
